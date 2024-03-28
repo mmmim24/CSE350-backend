@@ -65,6 +65,32 @@ router.post('/logout',(req,res)=>{
     });
 })
 
+router.post('/changePassword', (req,res)=>{
+    const {email,password,newPassword} = req.body;
+    UserModel.findOne({email:email})
+    .then(user => {
+        if(user) {
+            if(bcrypt.compareSync(password, user.password)){
+                const hash = bcrypt.hashSync(newPassword, 13);
+                UserModel.updateOne({email:email},{password:hash})
+                .then(()=>{
+                    // console.log("password changed")
+                    res.json("password changed")
+                })
+                .catch(err=>console.log(err))
+            }
+            else{
+                // console.log("vul password")
+                res.json("The password is incorrect")
+            }
+        }
+        else{
+            // console.log("user nai")
+            res.json("email is not registered");
+        }
+    })
+})
+
 router.post('/register', (req,res)=>{
     const {role,id,name,email,password} = req.body;
     UserModel.findOne({email:email})
